@@ -41,7 +41,10 @@ export const ContactListNav = () => {
       <Stack.Screen
         name={RouteHelper.AddOrUpdateContact}
         component={AddOrUpdateContact}
-        options={{headerShown: true, title: 'Add Contact Details'}}
+        options={({route}) => ({
+          headerShown: true,
+          title: route.params.name,
+        })}
       />
     </Stack.Navigator>
   );
