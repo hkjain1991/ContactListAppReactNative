@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import style from './style';
 import {SwipeListView} from 'react-native-swipe-list-view';
 import {Text, View} from 'react-native';
+import ContactItem from '../ContactItem/ContactItem';
 
 const ContactListItem = () => {
   const arr = Array(20)
@@ -13,9 +14,10 @@ const ContactListItem = () => {
     <SwipeListView
       data={data}
       renderItem={(data, rowMap) => (
-        <View style={{backgroundColor: 'black'}}>
-          <Text>I am {data.item.text} in a SwipeListView</Text>
-        </View>
+        <ContactItem item={data} />
+        // <View style={{backgroundColor: 'black'}}>
+        //   <Text>I am {data.item.text} in a SwipeListView</Text>
+        // </View>
       )}
       renderHiddenItem={(data, rowMap) => (
         <View style={{backgroundColor: 'red'}}>

@@ -7,21 +7,43 @@ import {
   Image,
   Pressable,
   Alert,
+  Keyboard,
 } from 'react-native';
 import style from './style';
 import * as ImagePicker from 'react-native-image-picker';
+import {
+  getDbOpenConnection,
+  insertDataIntoTable,
+} from '../../database/DbService';
+import {useNavigation} from '@react-navigation/native';
+import {RouteHelper} from '../../route/RouteHelper';
 
-const AddOrUpdateContact = ({btnTitle, name, mobile, landline, photouri}) => {
-  const [Name, setName] = useState(name ? name : '');
-  const [Mobile, setMobile] = useState(mobile ? mobile : '');
-  const [LandLine, setLandLine] = useState(landline ? landline : '');
-  const [uri, setUri] = useState(photouri ? photouri : '');
-  let options = {
+const AddOrUpdateContact = ({route}) => {
+  console.log(route.params.btnTitle);
+  const [Name, setName] = useState(route.params?.name);
+  const [Mobile, setMobile] = useState(route.params?.mobile);
+  const [LandLine, setLandLine] = useState(route.params?.landline);
+  const [uri, setUri] = useState(route.params?.uri);
+  const nav = useNavigation();
+  const options = {
     storageOptions: {
       skipBackup: true,
       path: 'images',
     },
   };
+
+  const saveDataInDb = async () => {
+    const db = await getDbOpenConnection();
+    await insertDataIntoTable(
+      db,
+      Name.trim(),
+      Mobile.trim(),
+      LandLine ? LandLine : null,
+      uri ? uri : null,
+    );
+    nav.goBack();
+  };
+
   return (
     <View>
       <View style={style.inputViewContainer}>
@@ -35,7 +57,7 @@ const AddOrUpdateContact = ({btnTitle, name, mobile, landline, photouri}) => {
                 setUri(response?.assets[0].uri);
               } else {
                 Alert.alert('You discarded clicked Image.');
-                setUri('');
+                setUri(undefined);
               }
             });
           }}>
@@ -51,7 +73,7 @@ const AddOrUpdateContact = ({btnTitle, name, mobile, landline, photouri}) => {
                 setUri(response?.assets[0].uri);
               } else {
                 Alert.alert('You discarded the selected Image.');
-                setUri('');
+                setUri(undefined);
               }
             });
           }}
@@ -69,9 +91,9 @@ const AddOrUpdateContact = ({btnTitle, name, mobile, landline, photouri}) => {
             <Image style={style.capturedImage} source={{uri: uri}} />
             <Pressable
               onPress={() => {
-                setUri('');
+                setUri(undefined);
               }}>
-              <Text>Delete Image</Text>
+              <Text style={style.ImageLabel}>Delete Image</Text>
             </Pressable>
           </>
         ) : null}
@@ -114,13 +136,18 @@ const AddOrUpdateContact = ({btnTitle, name, mobile, landline, photouri}) => {
         <TouchableOpacity
           style={style.touchableOpacityStyle}
           onPress={() => {
-            if (Name.length === 0) {
+            Keyboard.dismiss();
+            if (Name === undefined || Name.trim().length === 0) {
               Alert.alert('Name is required');
-            } else if (Mobile.length === 0) {
+            } else if (Mobile === undefined || Mobile.trim().length === 0) {
               Alert.alert('Mobile number is required');
+            } else {
+              saveDataInDb();
             }
           }}>
-          <Text style={style.btnSaveText}>{btnTitle ? btnTitle : 'Save'}</Text>
+          <Text style={style.btnSaveText}>
+            {route.params?.btnTitle ? route.params.btnTitle : 'Save'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

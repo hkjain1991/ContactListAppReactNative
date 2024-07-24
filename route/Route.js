@@ -43,7 +43,7 @@ export const ContactListNav = () => {
         component={AddOrUpdateContact}
         options={({route}) => ({
           headerShown: true,
-          title: route.params.name,
+          title: route.params.title,
         })}
       />
     </Stack.Navigator>
